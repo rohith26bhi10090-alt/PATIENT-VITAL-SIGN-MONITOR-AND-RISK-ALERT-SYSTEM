@@ -1,3 +1,6 @@
+import datetime
+import random
+import os
 
 # Normal ranges for vitals
 limits = {
@@ -14,16 +17,31 @@ patients = [
     {"name": "Meera", "pulse": 80, "temp": 98.6, "oxygen": 97, "bp": 118}
 ]
 
+# Assign each patient a random ID (random module)
+for patient in patients:
+    patient["id"] = "P" + str(random.randint(1000, 9999))
+
 danger = set()
 issues_found = set()
 
 total_pulse = 0
 count = 0
 
-print("Patient Health Report")
+# Timestamp for this report (datetime module)
+report_time = datetime.datetime.now()
+report_str = report_time.strftime("%Y-%m-%d %H:%M:%S")
+
+report_lines = []
+
+def log(text=""):
+    print(text)
+    report_lines.append(text)
+
+log("Patient Health Report")
+log("Generated on: " + report_str)
 
 for patient in patients:
-    print("\nName:", patient["name"])
+    log("\nName: " + patient["name"] + " (ID: " + patient["id"] + ")")
 
     issues = []
 
@@ -41,12 +59,12 @@ for patient in patients:
             issues_found.add(vital + " high")
 
         else:
-            print(vital, ":", value, "(Normal)")
+            log(vital + " : " + str(value) + " (Normal)")
 
     if len(issues) > 0:
-        print("Alerts:")
+        log("Alerts:")
         for item in issues:
-            print("-", item)
+            log("- " + item)
 
     if patient["oxygen"] < 90 or len(issues) >= 2:
         status = "CRITICAL"
@@ -55,7 +73,7 @@ for patient in patients:
     else:
         status = "STABLE"
 
-    print("Status:", status)
+    log("Status: " + status)
 
     if status != "STABLE":
         danger.add(patient["name"])
@@ -66,12 +84,25 @@ for patient in patients:
 avg_pulse = total_pulse / count
 danger_percent = (len(danger) / count) * 100
 
-print("\nSummary")
-print("Total Patients:", count)
-print("Average Pulse:", round(avg_pulse, 1))
-print("Patients Needing Attention:", danger)
-print("Issues Found:", issues_found)
-print("Danger Percentage:", round(danger_percent, 1), "%")
+log("\nSummary")
+log("Total Patients: " + str(count))
+log("Average Pulse: " + str(round(avg_pulse, 1)))
+log("Patients Needing Attention: " + str(danger))
+log("Issues Found: " + str(issues_found))
+log("Danger Percentage: " + str(round(danger_percent, 1)) + " %")
+
+# Save the report to a log file using the os module
+logs_folder = "logs"
+if not os.path.exists(logs_folder):
+    os.makedirs(logs_folder)
+
+filename = "report_" + report_time.strftime("%Y%m%d_%H%M%S") + ".txt"
+filepath = os.path.join(logs_folder, filename)
+
+with open(filepath, "w") as f:
+    f.write("\n".join(report_lines))
+
+print("\nReport saved to:", filepath)
 
 # Search patient details
 while True:
@@ -86,6 +117,7 @@ while True:
     for patient in patients:
         if patient["name"].lower() == name.lower():
             print("\nPatient Details")
+            print("ID:", patient["id"])
             print("Pulse:", patient["pulse"])
             print("Temperature:", patient["temp"])
             print("Oxygen:", patient["oxygen"])
