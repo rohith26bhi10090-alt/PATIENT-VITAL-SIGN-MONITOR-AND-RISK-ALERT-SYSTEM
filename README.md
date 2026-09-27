@@ -98,7 +98,7 @@ python --version
 Clone the repository:
 
 ```bash
-git clone <repository-link>
+git clone <https://github.com/rohith26bhi10090-alt/PATIENT-VITAL-SIGN-MONITOR-AND-RISK-ALERT-SYSTEM.git>
 ```
 
 Or download the source code manually.
